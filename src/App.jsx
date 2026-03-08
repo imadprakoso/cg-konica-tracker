@@ -138,8 +138,11 @@ export default function App() {
   const [operator, setOperator] = useState('');
   const [newClicks, setNewClicks] = useState('');
   const [dateType, setDateType] = useState('Hari Ini');
+
+  // --- Form State Reset Part ---
   const [replacePart, setReplacePart] = useState('');
   const [replaceOperator, setReplaceOperator] = useState('');
+  const [replaceClick, setReplaceClick] = useState(''); // State baru untuk klik saat reset part
 
   // --- Form State Error Log ---
   const [errorForm, setErrorForm] = useState({
@@ -232,6 +235,9 @@ export default function App() {
   const currentMultiplier = useMemo(() => {
     if (!errorForm.pic || !errorForm.deskripsi_kesalahan) return 1;
 
+    // Pengecualian: Print Test tidak pernah mendapatkan penalty
+    if (errorForm.jenis_kesalahan === 'Print Test') return 1;
+
     const picLower = errorForm.pic.toLowerCase().trim();
     const deskripsiLower = errorForm.deskripsi_kesalahan.toLowerCase().trim();
 
@@ -239,10 +245,11 @@ export default function App() {
 
     const previousErrors = errorLogs.filter(e =>
       e.pic && e.pic.toLowerCase().trim() === picLower &&
-      e.deskripsi_kesalahan && e.deskripsi_kesalahan.toLowerCase().trim() === deskripsiLower
+      e.deskripsi_kesalahan && e.deskripsi_kesalahan.toLowerCase().trim() === deskripsiLower &&
+      e.jenis_kesalahan !== 'Print Test' // Print test sebelumnya juga tidak dihitung sebagai riwayat pelanggaran
     );
     return previousErrors.length + 1;
-  }, [errorForm.pic, errorForm.deskripsi_kesalahan, errorLogs]);
+  }, [errorForm.pic, errorForm.deskripsi_kesalahan, errorForm.jenis_kesalahan, errorLogs]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -335,9 +342,13 @@ export default function App() {
     if (!replacePart) return showToast("Pilih part yang diganti!", "error");
     if (!replaceOperator) return showToast("Nama operator wajib diisi!", "error");
 
+    // Logika input Click Terakhir
+    const targetClick = replaceClick !== '' ? parseInt(replaceClick) : currentTotalClicks;
+    if (isNaN(targetClick)) return showToast("Klik mesin tidak valid!", "error");
+
     const newReplacementDb = {
       part_name: replacePart,
-      replaced_at_click: currentTotalClicks,
+      replaced_at_click: targetClick,
       operator: replaceOperator
     };
 
@@ -357,14 +368,15 @@ export default function App() {
         operator: data[0].operator,
         createdAt: data[0].created_at
       } : {
-        id: Date.now(), partName: replacePart, replacedAtClick: currentTotalClicks, operator: replaceOperator, createdAt: new Date().toISOString()
+        id: Date.now(), partName: replacePart, replacedAtClick: targetClick, operator: replaceOperator, createdAt: new Date().toISOString()
       };
 
       setReplacementHistory([...replacementHistory, insertedData]);
-      setReplacements({ ...replacements, [replacePart]: currentTotalClicks });
+      setReplacements({ ...replacements, [replacePart]: targetClick });
       setReplacePart('');
       setReplaceOperator('');
-      showToast(`Suku cadang ${replacePart} berhasil direset!`);
+      setReplaceClick('');
+      showToast(`Suku cadang ${replacePart} berhasil direset di angka ${targetClick.toLocaleString()}!`);
     } catch (err) {
       showToast("Gagal mereset part ke database.", "error");
     }
@@ -494,15 +506,18 @@ export default function App() {
     const kj = parseFloat(editErrorForm.kerugian_jasa) || 0;
 
     let mult = 1;
-    const picLower = editErrorForm.pic.toLowerCase().trim();
-    const deskripsiLower = editErrorForm.deskripsi_kesalahan.toLowerCase().trim();
-    if (deskripsiLower !== '') {
-      const previousErrors = errorLogs.filter(err =>
-        err.id !== item.id &&
-        err.pic && err.pic.toLowerCase().trim() === picLower &&
-        err.deskripsi_kesalahan && err.deskripsi_kesalahan.toLowerCase().trim() === deskripsiLower
-      );
-      mult = previousErrors.length + 1;
+    if (editErrorForm.jenis_kesalahan !== 'Print Test') {
+      const picLower = editErrorForm.pic.toLowerCase().trim();
+      const deskripsiLower = editErrorForm.deskripsi_kesalahan.toLowerCase().trim();
+      if (deskripsiLower !== '') {
+        const previousErrors = errorLogs.filter(err =>
+          err.id !== item.id &&
+          err.pic && err.pic.toLowerCase().trim() === picLower &&
+          err.deskripsi_kesalahan && err.deskripsi_kesalahan.toLowerCase().trim() === deskripsiLower &&
+          err.jenis_kesalahan !== 'Print Test'
+        );
+        mult = previousErrors.length + 1;
+      }
     }
 
     const totalKerugian = (kb + kj) * mult;
@@ -1007,6 +1022,7 @@ export default function App() {
                 {Object.keys(PART_LIFETIMES).map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               <input disabled={!isAdmin} type="text" value={replaceOperator} onChange={(e) => setReplaceOperator(e.target.value)} placeholder="Nama Teknisi" className={`w-full p-2 border rounded focus:outline-none focus:ring-2 ${isAdmin ? cls.input : cls.inputDisabled}`} />
+              <input disabled={!isAdmin} type="number" value={replaceClick} onChange={(e) => setReplaceClick(e.target.value)} placeholder={`Klik Terakhir (Default: ${currentTotalClicks})`} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 ${isAdmin ? cls.input : cls.inputDisabled}`} />
               <button type="submit" disabled={!isAdmin} className={`w-full font-medium py-2 rounded transition-colors ${isAdmin ? `${cls.amberCard} ${cls.amberText}` : cls.inputDisabled}`}>Reset Sekarang</button>
             </form>
           </div>
