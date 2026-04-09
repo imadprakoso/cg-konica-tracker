@@ -11,7 +11,7 @@ const supabaseHeaders = {
   'Content-Type': 'application/json'
 };
 
-const ADMIN_PASSWORD = 'admin';
+const ADMIN_PASSWORD = 'admin'; 
 
 const PART_LIFETIMES = {
   "Toner Cyan": 14000, "Toner Magenta": 14000, "Toner Yellow": 14000, "Toner Black": 14000,
@@ -60,17 +60,15 @@ export default function App() {
     textMain: isDarkMode ? 'text-[#F5F5F7]' : 'text-[#1D1D1F]',
     textSub: isDarkMode ? 'text-[#98989D]' : 'text-[#86868B]',
     textMuted: isDarkMode ? 'text-[#636366]' : 'text-[#AEAEB2]',
-
+    
     input: isDarkMode ? 'bg-[#2C2C2E] border border-[#38383A] text-white focus:ring-[3px] focus:ring-[#0A84FF]/40 focus:border-[#0A84FF] rounded-[14px] transition-all' : 'bg-white border border-[#E5E5EA] text-[#1D1D1F] focus:ring-[3px] focus:ring-[#007AFF]/30 focus:border-[#007AFF] rounded-[14px] transition-all shadow-sm',
     inputDisabled: isDarkMode ? 'bg-[#1C1C1E] border-[#2C2C2E] text-[#636366] opacity-70' : 'bg-[#F5F5F7] border-[#E5E5EA] text-[#AEAEB2] opacity-70',
     btnSec: isDarkMode ? 'bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white border border-[#38383A] rounded-full transition-all' : 'bg-white hover:bg-[#E5E5EA] text-[#1D1D1F] border border-[#D1D1D6] shadow-sm rounded-full transition-all',
 
-    // Apple Segmented Control for Tabs
     tabContainer: isDarkMode ? 'bg-[#1C1C1E] p-1 rounded-[16px] border border-[#2C2C2E]' : 'bg-[#E3E3E8]/70 p-1 rounded-[16px]',
     tabAct: isDarkMode ? 'bg-[#3A3A3C] text-white shadow-sm rounded-[12px] font-semibold' : 'bg-white text-[#1D1D1F] shadow-sm rounded-[12px] font-semibold',
     tabInact: isDarkMode ? 'text-[#98989D] hover:text-[#F5F5F7]' : 'text-[#86868B] hover:text-[#1D1D1F]',
 
-    // Apple System Colors
     indigoText: isDarkMode ? 'text-[#0A84FF]' : 'text-[#007AFF]',
     indigoBg: isDarkMode ? 'bg-[#0A84FF]' : 'bg-[#007AFF]',
     indigoIcon: isDarkMode ? 'bg-[#0A84FF]/20 text-[#0A84FF]' : 'bg-[#007AFF]/10 text-[#007AFF]',
@@ -100,7 +98,7 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [replacementHistory, setReplacementHistory] = useState([]);
   const [errorLogs, setErrorLogs] = useState([]);
-
+  
   const [inventory, setInventory] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [replacements, setReplacements] = useState({});
@@ -112,7 +110,7 @@ export default function App() {
 
   const [replacePart, setReplacePart] = useState('');
   const [replaceOperator, setReplaceOperator] = useState('');
-  const [replaceClick, setReplaceClick] = useState('');
+  const [replaceClick, setReplaceClick] = useState(''); 
 
   const [errorForm, setErrorForm] = useState({
     tgl: getTodayStr(), nomor_invoice: '', divisi: 'CG', nama_konsumen: '', nama_produk: '',
@@ -126,7 +124,7 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [reportPeriod, setReportPeriod] = useState('week');
+  const [reportPeriod, setReportPeriod] = useState('week'); 
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
 
@@ -210,13 +208,13 @@ export default function App() {
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
-    if (adminPwdInput === ADMIN_PASSWORD) { setIsAdmin(true); setShowLoginModal(false); setAdminPwdInput(''); showToast("Berhasil masuk Mode Admin"); }
+    if (adminPwdInput === ADMIN_PASSWORD) { setIsAdmin(true); setShowLoginModal(false); setAdminPwdInput(''); showToast("Berhasil masuk Mode Admin"); } 
     else { showToast("Password Admin Salah!", "error"); }
   };
 
   const handleUpdatePrice = (e) => {
     e.preventDefault(); const newPrice = parseInt(adminPriceInput);
-    if (!isNaN(newPrice) && newPrice >= 0) { setClickPrice(newPrice); localStorage.setItem('clickPrice', newPrice.toString()); showToast("Harga per klik berhasil diperbarui!"); }
+    if (!isNaN(newPrice) && newPrice >= 0) { setClickPrice(newPrice); localStorage.setItem('clickPrice', newPrice.toString()); showToast("Harga per klik berhasil diperbarui!"); } 
     else { showToast("Masukkan nominal harga yang valid!", "error"); }
   };
 
@@ -244,7 +242,7 @@ export default function App() {
       else if (type === 'inventory') setInventory(inventory.filter(i => i.id !== item.id));
 
       showToast("Data berhasil dihapus!");
-    } catch (err) { showToast("Gagal menghapus dari database cloud.", "error"); }
+    } catch (err) { showToast("Gagal menghapus dari database cloud.", "error"); } 
     finally { setDeleteModal({ isOpen: false, item: null, type: '' }); }
   };
 
@@ -279,14 +277,21 @@ export default function App() {
       const existingPart = inventory.find(p => p.part_name.toLowerCase() === purchaseForm.part_name.toLowerCase());
       if (existingPart) {
         const resInv = await fetch(`${supabaseUrl}/rest/v1/inventory_parts?id=eq.${existingPart.id}`, { method: 'PATCH', headers: { ...supabaseHeaders, 'Prefer': 'return=representation' }, body: JSON.stringify({ stock: existingPart.stock + qtyInt }) });
-        if (resInv.ok) { const updatedInv = await resInv.json(); setInventory(inventory.map(item => item.id === existingPart.id ? updatedInv[0] : item)); }
+        if(resInv.ok) { const updatedInv = await resInv.json(); setInventory(inventory.map(item => item.id === existingPart.id ? updatedInv[0] : item)); }
       } else {
         const resInv = await fetch(`${supabaseUrl}/rest/v1/inventory_parts`, { method: 'POST', headers: { ...supabaseHeaders, 'Prefer': 'return=representation' }, body: JSON.stringify({ part_name: purchaseForm.part_name, stock: qtyInt }) });
-        if (resInv.ok) { const newInv = await resInv.json(); setInventory([...inventory, newInv[0]]); }
+        if(resInv.ok) { const newInv = await resInv.json(); setInventory([...inventory, newInv[0]]); }
       }
       showToast(`Pembelian ${purchaseForm.part_name} berhasil dicatat & stok bertambah!`);
-      setPurchaseForm({ tgl_pembelian: getTodayStr(), part_name: '', qty: '', harga_satuan: '', supplier: '' });
-    } catch (err) { showToast("Gagal memproses pembelian.", "error"); }
+      // KUNCI TANGGAL & SUPPLIER SETELAH SUBMIT:
+      setPurchaseForm({ 
+        tgl_pembelian: purchaseForm.tgl_pembelian, 
+        part_name: '', 
+        qty: '', 
+        harga_satuan: '', 
+        supplier: purchaseForm.supplier 
+      });
+    } catch(err) { showToast("Gagal memproses pembelian.", "error"); }
   };
 
   const handleSaveData = async (e) => {
@@ -434,7 +439,7 @@ export default function App() {
       const d = new Date(date); const shortDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
       return { fullDate: date, shortDate: shortDate, total: grouped[date] };
     });
-    if (chartArray.length > 14) chartArray = chartArray.slice(chartArray.length - 14);
+    if (chartArray.length > 14) chartArray = chartArray.slice(chartArray.length - 14); 
     return chartArray;
   }, [reportClicks]);
 
@@ -444,13 +449,12 @@ export default function App() {
     const grouped = {};
     reportErrors.forEach(item => { const type = item.jenis_kesalahan || 'Lainnya'; if (!grouped[type]) grouped[type] = 0; grouped[type] += Number(item.jumlah_kerugian); });
     const colors = { 'Machine Error': 'bg-[#0A84FF]', 'Human Error': 'bg-[#FF453A]', 'Print Test': 'bg-[#FF9F0A]', 'Lainnya': 'bg-[#8E8E93]' };
-    return Object.keys(grouped).map(type => ({ name: type, value: grouped[type], color: colors[type] || 'bg-[#0A84FF]' })).sort((a, b) => b.value - a.value);
+    return Object.keys(grouped).map(type => ({ name: type, value: grouped[type], color: colors[type] || 'bg-[#0A84FF]' })).sort((a, b) => b.value - a.value); 
   }, [reportErrors]);
 
   if (isLoading) return <div className={`min-h-screen ${cls.appBg} flex items-center justify-center`}><div className="animate-spin rounded-full h-12 w-12 border-[3px] border-t-transparent border-[#007AFF]"></div></div>;
 
   return (
-    // Membungkus dengan antialiased dan tracking-tight agar font mirip style macOS / iOS
     <div className={`min-h-screen ${cls.appBg} font-sans antialiased tracking-tight p-4 md:p-8 relative pb-20 transition-colors duration-300`}>
 
       {/* --- SEMUA MODAL --- */}
@@ -491,8 +495,8 @@ export default function App() {
           <div className={`${cls.cardBg} w-full max-w-md p-6 relative`}>
             <button onClick={() => setEditPurchaseModal({ isOpen: false, item: null })} className={`absolute top-4 right-4 ${cls.textMuted} p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10`}><X className="w-5 h-5" /></button>
             <div className="flex items-center space-x-3 mb-6">
-              <div className={`p-2 rounded-[12px] ${cls.amberIcon}`}><Pencil className="w-5 h-5" /></div>
-              <h2 className={`text-xl font-semibold ${cls.textMain}`}>Edit Pembelian Part</h2>
+               <div className={`p-2 rounded-[12px] ${cls.amberIcon}`}><Pencil className="w-5 h-5" /></div>
+               <h2 className={`text-xl font-semibold ${cls.textMain}`}>Edit Pembelian Part</h2>
             </div>
             <form onSubmit={executeEditPurchase} className="space-y-4 text-sm font-medium">
               <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Tgl Beli</label><input type="date" value={editPurchaseForm.tgl_pembelian} onChange={(e) => setEditPurchaseForm({ ...editPurchaseForm, tgl_pembelian: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
@@ -587,23 +591,23 @@ export default function App() {
                   </div>
 
                   <div>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${cls.roseText} mb-3 ml-1 opacity-80`}>Dampak Finansial</h3>
-                    <div className={`${cls.roseIcon} p-4 rounded-[20px]`}>
-                      {(() => {
-                        const base = Number(errorDetailModal.item.kerugian_bahan) + Number(errorDetailModal.item.kerugian_jasa);
-                        const total = Number(errorDetailModal.item.jumlah_kerugian);
-                        const mult = (base > 0 && total > base) ? Math.round(total / base) : 1;
-                        return (
-                          <>
-                            <div className="flex justify-between items-center mb-1">
-                              <span className={`text-sm font-medium ${cls.roseText}`}>Total Kerugian</span>
-                              <span className={`font-mono font-bold text-xl ${cls.roseText}`}>Rp {total.toLocaleString('id-ID')}</span>
-                            </div>
-                            {mult > 1 && <div className={`text-xs font-semibold ${cls.roseText} mt-2 pt-2 border-t border-rose-500/20`}>Termasuk Penalty {mult}x Lipat!</div>}
-                          </>
-                        );
-                      })()}
-                    </div>
+                     <h3 className={`text-xs font-bold uppercase tracking-wider ${cls.roseText} mb-3 ml-1 opacity-80`}>Dampak Finansial</h3>
+                     <div className={`${cls.roseIcon} p-4 rounded-[20px]`}>
+                        {(() => {
+                          const base = Number(errorDetailModal.item.kerugian_bahan) + Number(errorDetailModal.item.kerugian_jasa);
+                          const total = Number(errorDetailModal.item.jumlah_kerugian);
+                          const mult = (base > 0 && total > base) ? Math.round(total / base) : 1;
+                          return (
+                            <>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className={`text-sm font-medium ${cls.roseText}`}>Total Kerugian</span>
+                                <span className={`font-mono font-bold text-xl ${cls.roseText}`}>Rp {total.toLocaleString('id-ID')}</span>
+                              </div>
+                              {mult > 1 && <div className={`text-xs font-semibold ${cls.roseText} mt-2 pt-2 border-t border-rose-500/20`}>Termasuk Penalty {mult}x Lipat!</div>}
+                            </>
+                          );
+                        })()}
+                     </div>
                   </div>
                 </div>
 
@@ -632,7 +636,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-
+            
             {/* Modal Footer */}
             <div className={`p-4 border-t ${cls.cardHeader} text-center`}>
               <button onClick={() => setErrorDetailModal({ isOpen: false, item: null })} className={`px-8 py-2.5 font-semibold text-[15px] rounded-full transition-colors ${cls.btnSec}`}>Tutup</button>
@@ -661,7 +665,7 @@ export default function App() {
       {/* Tost Notification Mac Style */}
       {toast && (
         <div className={`fixed top-8 right-8 z-50 flex items-center px-5 py-4 rounded-[18px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-white backdrop-blur-xl transition-all ${toast.type === 'error' ? 'bg-[#FF3B30]/90' : 'bg-[#32D74B]/90'}`}>
-          {toast.type === 'error' ? <AlertCircle className="w-5 h-5 mr-3" /> : <CheckCircle className="w-5 h-5 mr-3" />}
+          {toast.type === 'error' ? <AlertCircle className="w-5 h-5 mr-3" /> : <CheckCircle className="w-5 h-5 mr-3" />} 
           <span className="font-semibold text-[15px] tracking-tight">{toast.message}</span>
         </div>
       )}
@@ -730,7 +734,7 @@ export default function App() {
 
         {/* KOLOM KANAN (TABS) */}
         <div className="lg:col-span-3 space-y-6">
-
+          
           {/* Segmented Control Mac Style */}
           <div className="flex justify-center w-full">
             <div className={`flex w-full md:w-auto overflow-x-auto hide-scrollbar ${cls.tabContainer}`}>
@@ -758,22 +762,22 @@ export default function App() {
               {/* Top Cards Apple Health Style */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className={`p-6 flex flex-col justify-between h-40 ${cls.cardBg}`}>
-                  <div className="flex justify-between items-start">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${cls.indigoIcon}`}><Printer className="w-5 h-5" /></div>
-                    <span className={`text-xs font-bold uppercase tracking-wider ${cls.textMuted}`}>Output Tercetak</span>
-                  </div>
-                  <div>
-                    <h3 className={`text-4xl font-bold tracking-tight font-mono ${cls.textMain}`}>{totalReportUsage.toLocaleString()} <span className={`text-lg font-medium ${cls.textMuted}`}>klik</span></h3>
-                  </div>
+                   <div className="flex justify-between items-start">
+                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${cls.indigoIcon}`}><Printer className="w-5 h-5" /></div>
+                     <span className={`text-xs font-bold uppercase tracking-wider ${cls.textMuted}`}>Output Tercetak</span>
+                   </div>
+                   <div>
+                     <h3 className={`text-4xl font-bold tracking-tight font-mono ${cls.textMain}`}>{totalReportUsage.toLocaleString()} <span className={`text-lg font-medium ${cls.textMuted}`}>klik</span></h3>
+                   </div>
                 </div>
                 <div className={`p-6 flex flex-col justify-between h-40 ${cls.cardBg}`}>
-                  <div className="flex justify-between items-start">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${cls.emeraldIcon}`}><DollarSign className="w-5 h-5" /></div>
-                    <span className={`text-xs font-bold uppercase tracking-wider ${cls.textMuted}`}>Est. Pendapatan Kotor</span>
-                  </div>
-                  <div>
-                    <h3 className={`text-4xl font-bold tracking-tight font-mono ${cls.textMain}`}>Rp {totalGrossRevenue.toLocaleString('id-ID')}</h3>
-                  </div>
+                   <div className="flex justify-between items-start">
+                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${cls.emeraldIcon}`}><DollarSign className="w-5 h-5" /></div>
+                     <span className={`text-xs font-bold uppercase tracking-wider ${cls.textMuted}`}>Est. Pendapatan Kotor</span>
+                   </div>
+                   <div>
+                     <h3 className={`text-4xl font-bold tracking-tight font-mono ${cls.textMain}`}>Rp {totalGrossRevenue.toLocaleString('id-ID')}</h3>
+                   </div>
                 </div>
               </div>
 
@@ -836,7 +840,7 @@ export default function App() {
                               <div className={`w-2.5 h-2.5 rounded-full mr-2 ${d.color}`}></div>
                               <span className={`text-[11px] font-medium ${cls.textMain} truncate max-w-[70px]`}>{d.name}</span>
                             </div>
-                            <span className={`text-[11px] font-bold font-mono ${cls.textSub}`}>{(d.value / 1000).toFixed(0)}k</span>
+                            <span className={`text-[11px] font-bold font-mono ${cls.textSub}`}>{(d.value/1000).toFixed(0)}k</span>
                           </div>
                         ))}
                       </div>
@@ -856,17 +860,17 @@ export default function App() {
           {activeTab === 'inventory' && (
             <div className="space-y-6 animate-in fade-in duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+                
                 <div className={`col-span-1 p-6 ${cls.cardBg}`}>
                   <h3 className={`font-semibold text-xl mb-6 flex items-center tracking-tight ${cls.textMain}`}><ShoppingCart className={`w-5 h-5 mr-2 ${cls.amberText}`} /> Catat Pembelian</h3>
                   <form onSubmit={handleSavePurchase} className="space-y-4 font-medium">
-                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Tgl Beli</label><input type="date" value={purchaseForm.tgl_pembelian} onChange={e => setPurchaseForm({ ...purchaseForm, tgl_pembelian: e.target.value })} className={`w-full p-3.5 ${cls.input}`} required /></div>
-                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label><input type="text" value={purchaseForm.part_name} onChange={e => setPurchaseForm({ ...purchaseForm, part_name: e.target.value })} className={`w-full p-3.5 ${cls.input}`} required /></div>
+                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Tgl Beli</label><input type="date" value={purchaseForm.tgl_pembelian} onChange={e => setPurchaseForm({...purchaseForm, tgl_pembelian: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
+                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label><input type="text" value={purchaseForm.part_name} onChange={e => setPurchaseForm({...purchaseForm, part_name: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
                     <div className="flex gap-3">
-                      <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Qty</label><input type="number" value={purchaseForm.qty} onChange={e => setPurchaseForm({ ...purchaseForm, qty: e.target.value })} className={`w-full p-3.5 ${cls.input}`} required /></div>
-                      <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Harga/Pcs</label><input type="number" value={purchaseForm.harga_satuan} onChange={e => setPurchaseForm({ ...purchaseForm, harga_satuan: e.target.value })} className={`w-full p-3.5 ${cls.input}`} required /></div>
+                      <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Qty</label><input type="number" value={purchaseForm.qty} onChange={e => setPurchaseForm({...purchaseForm, qty: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
+                      <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Harga/Pcs</label><input type="number" value={purchaseForm.harga_satuan} onChange={e => setPurchaseForm({...purchaseForm, harga_satuan: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
                     </div>
-                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Supplier</label><input type="text" value={purchaseForm.supplier} onChange={e => setPurchaseForm({ ...purchaseForm, supplier: e.target.value })} className={`w-full p-3.5 ${cls.input}`} /></div>
+                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Supplier</label><input type="text" value={purchaseForm.supplier} onChange={e => setPurchaseForm({...purchaseForm, supplier: e.target.value})} className={`w-full p-3.5 ${cls.input}`} /></div>
                     <button type="submit" className={`w-full mt-2 ${cls.amberBg} text-white font-semibold py-3.5 rounded-[14px] shadow-sm hover:opacity-90`}>Tambah ke Gudang</button>
                   </form>
                 </div>
@@ -898,7 +902,7 @@ export default function App() {
                       </table>
                     </div>
                   </div>
-
+                  
                   <div className={`overflow-hidden ${cls.cardBg}`}>
                     <div className={`p-5 border-b flex justify-between items-center ${cls.tableDiv}`}>
                       <h3 className={`font-semibold text-lg tracking-tight flex items-center ${cls.textMain}`}>Histori Pembelian</h3>
@@ -928,26 +932,26 @@ export default function App() {
 
           {/* TAB: MONITORING PART */}
           {activeTab === 'monitoring' && (
-            <div className={`overflow-hidden animate-in fade-in duration-500 ${cls.cardBg}`}>
-              <div className={`p-6 border-b flex items-center ${cls.tableDiv}`}><Settings className={`w-6 h-6 mr-3 ${cls.textMuted}`} /><h2 className={`text-xl font-semibold tracking-tight ${cls.textMain}`}>Status Suku Cadang</h2></div>
-              <div className="overflow-x-auto max-h-[600px]"><table className="w-full text-left text-[15px] whitespace-nowrap"><thead className={`sticky top-0 z-10 border-b ${cls.tableHead}`}><tr><th className="px-6 py-4 font-semibold">Nama Suku Cadang</th><th className="px-6 py-4 font-semibold text-right">Dipakai</th><th className="px-6 py-4 font-semibold">Indikator Umur</th><th className="px-6 py-4 font-semibold text-right">Est. Ganti</th></tr></thead><tbody className={`divide-y ${cls.tableDiv}`}>{partData.map((part, idx) => (<tr key={idx} className={cls.tableRow}><td className={`px-6 py-4 font-semibold ${cls.textMain}`}>{part.name}</td><td className={`px-6 py-4 text-right font-mono font-medium ${cls.textSub}`}>{part.usage.toLocaleString()}</td><td className="px-6 py-4"><div className="flex items-center"><div className={`w-full rounded-full h-2 mr-4 bg-black/5 dark:bg-white/10 overflow-hidden`}><div className={`h-2 rounded-full ${part.color}`} style={{ width: `${part.remainingPercent}%` }}></div></div><span className={`text-sm font-bold w-12 text-right ${part.remainingPercent <= 10 ? cls.roseText : (part.remainingPercent <= 25 ? cls.amberText : cls.emeraldText)}`}>{part.remainingPercent}%</span></div></td><td className={`px-6 py-4 text-right font-mono font-medium ${cls.textSub}`}>{part.estimatedReplace.toLocaleString()}</td></tr>))}</tbody></table></div>
-            </div>
+             <div className={`overflow-hidden animate-in fade-in duration-500 ${cls.cardBg}`}>
+             <div className={`p-6 border-b flex items-center ${cls.tableDiv}`}><Settings className={`w-6 h-6 mr-3 ${cls.textMuted}`} /><h2 className={`text-xl font-semibold tracking-tight ${cls.textMain}`}>Status Suku Cadang</h2></div>
+             <div className="overflow-x-auto max-h-[600px]"><table className="w-full text-left text-[15px] whitespace-nowrap"><thead className={`sticky top-0 z-10 border-b ${cls.tableHead}`}><tr><th className="px-6 py-4 font-semibold">Nama Suku Cadang</th><th className="px-6 py-4 font-semibold text-right">Dipakai</th><th className="px-6 py-4 font-semibold">Indikator Umur</th><th className="px-6 py-4 font-semibold text-right">Est. Ganti</th></tr></thead><tbody className={`divide-y ${cls.tableDiv}`}>{partData.map((part, idx) => (<tr key={idx} className={cls.tableRow}><td className={`px-6 py-4 font-semibold ${cls.textMain}`}>{part.name}</td><td className={`px-6 py-4 text-right font-mono font-medium ${cls.textSub}`}>{part.usage.toLocaleString()}</td><td className="px-6 py-4"><div className="flex items-center"><div className={`w-full rounded-full h-2 mr-4 bg-black/5 dark:bg-white/10 overflow-hidden`}><div className={`h-2 rounded-full ${part.color}`} style={{ width: `${part.remainingPercent}%` }}></div></div><span className={`text-sm font-bold w-12 text-right ${part.remainingPercent <= 10 ? cls.roseText : (part.remainingPercent <= 25 ? cls.amberText : cls.emeraldText)}`}>{part.remainingPercent}%</span></div></td><td className={`px-6 py-4 text-right font-mono font-medium ${cls.textSub}`}>{part.estimatedReplace.toLocaleString()}</td></tr>))}</tbody></table></div>
+           </div>
           )}
 
           {/* TAB: ERROR LOG */}
           {activeTab === 'error_log' && (
-            <div className={`overflow-hidden animate-in fade-in duration-500 ${cls.cardBg}`}>
-              <div className={`p-6 border-b flex flex-col justify-center ${cls.tableDiv}`}><h3 className={`font-semibold text-xl flex items-center tracking-tight ${cls.textMain}`}><AlertTriangle className={`w-6 h-6 mr-3 ${cls.roseText}`} /> Pencatatan Kesalahan (Error Log)</h3><p className={`text-sm mt-2 ml-9 ${cls.textSub}`}>Dokumentasi masalah dan kalkulasi penalty.</p></div>
-              <div className="p-6"><form onSubmit={handleSaveErrorLog} className="grid grid-cols-1 md:grid-cols-3 gap-8 font-medium"><div className="space-y-4"><div><h4 className={`font-bold mb-4 text-xs uppercase tracking-wider ${cls.textMuted}`}>Data Order</h4><div className="space-y-4"><input type="date" value={errorForm.tgl} onChange={e => setErrorForm({ ...errorForm, tgl: e.target.value })} className={`w-full p-3.5 ${cls.input}`} required /><input type="text" value={errorForm.nomor_invoice} onChange={e => setErrorForm({ ...errorForm, nomor_invoice: e.target.value })} placeholder="No. Invoice" className={`w-full p-3.5 ${cls.input}`} /><input type="text" value={errorForm.nama_konsumen} onChange={e => setErrorForm({ ...errorForm, nama_konsumen: e.target.value })} placeholder="Nama Konsumen" className={`w-full p-3.5 ${cls.input}`} required /><input type="text" value={errorForm.nama_produk} onChange={e => setErrorForm({ ...errorForm, nama_produk: e.target.value })} placeholder="Nama Produk" className={`w-full p-3.5 ${cls.input}`} required /></div></div></div><div className="space-y-4"><div><h4 className={`font-bold mb-4 text-xs uppercase tracking-wider ${cls.textMuted}`}>Analisis Error</h4><div className="space-y-4"><div className="grid grid-cols-2 gap-3"><select value={errorForm.kategori_kesalahan} onChange={e => setErrorForm({ ...errorForm, kategori_kesalahan: e.target.value })} className={`w-full p-3.5 ${cls.input}`}><option value="Kesesuaian/Ketepatan">Kesesuaian</option><option value="Kualitas">Kualitas</option><option value="Desain">Desain</option><option value="Bahan">Bahan</option><option value="Prosedur/Proses">Prosedur</option></select><select value={errorForm.jenis_kesalahan} onChange={e => setErrorForm({ ...errorForm, jenis_kesalahan: e.target.value })} className={`w-full p-3.5 ${cls.input}`}><option value="Machine Error">Mesin</option><option value="Human Error">Human</option><option value="Print Test">Tes Print</option></select></div><div className="grid grid-cols-2 gap-3"><input type="number" value={errorForm.qty_kesalahan} onChange={e => setErrorForm({ ...errorForm, qty_kesalahan: e.target.value })} placeholder="Qty Rusak" className={`w-full p-3.5 ${cls.input}`} required /><input type="text" value={errorForm.pic} onChange={e => setErrorForm({ ...errorForm, pic: e.target.value })} placeholder="PIC" className={`w-full p-3.5 ${cls.input}`} required /></div><div className="grid grid-cols-2 gap-3"><input type="number" value={errorForm.kerugian_bahan} onChange={e => setErrorForm({ ...errorForm, kerugian_bahan: e.target.value })} placeholder="Rugi Bahan" className={`w-full p-3.5 ${cls.input}`} /><input type="number" value={errorForm.kerugian_jasa} onChange={e => setErrorForm({ ...errorForm, kerugian_jasa: e.target.value })} placeholder="Rugi Jasa" className={`w-full p-3.5 ${cls.input}`} /></div></div></div></div><div className="space-y-4 flex flex-col h-full"><div className="flex-grow"><h4 className={`font-bold mb-4 text-xs uppercase tracking-wider ${cls.textMuted}`}>Tindakan</h4><div className="space-y-4"><textarea value={errorForm.deskripsi_kesalahan} onChange={e => setErrorForm({ ...errorForm, deskripsi_kesalahan: e.target.value })} className={`w-full p-3.5 ${cls.input}`} rows="2" placeholder="Deskripsi Masalah"></textarea><textarea value={errorForm.pencegahan_solusi} onChange={e => setErrorForm({ ...errorForm, pencegahan_solusi: e.target.value })} className={`w-full p-3.5 ${cls.input}`} rows="2" placeholder="Solusi & Pencegahan"></textarea></div></div><button type="submit" className={`w-full py-4 rounded-[14px] font-semibold transition-opacity hover:opacity-90 ${cls.roseBg} text-white`}><CheckCircle className="w-5 h-5 mr-2 inline" /> Simpan Error</button></div></form></div>
-            </div>
+             <div className={`overflow-hidden animate-in fade-in duration-500 ${cls.cardBg}`}>
+             <div className={`p-6 border-b flex flex-col justify-center ${cls.tableDiv}`}><h3 className={`font-semibold text-xl flex items-center tracking-tight ${cls.textMain}`}><AlertTriangle className={`w-6 h-6 mr-3 ${cls.roseText}`} /> Pencatatan Kesalahan (Error Log)</h3><p className={`text-sm mt-2 ml-9 ${cls.textSub}`}>Dokumentasi masalah dan kalkulasi penalty.</p></div>
+             <div className="p-6"><form onSubmit={handleSaveErrorLog} className="grid grid-cols-1 md:grid-cols-3 gap-8 font-medium"><div className="space-y-4"><div><h4 className={`font-bold mb-4 text-xs uppercase tracking-wider ${cls.textMuted}`}>Data Order</h4><div className="space-y-4"><input type="date" value={errorForm.tgl} onChange={e => setErrorForm({ ...errorForm, tgl: e.target.value })} className={`w-full p-3.5 ${cls.input}`} required /><input type="text" value={errorForm.nomor_invoice} onChange={e => setErrorForm({ ...errorForm, nomor_invoice: e.target.value })} placeholder="No. Invoice" className={`w-full p-3.5 ${cls.input}`} /><input type="text" value={errorForm.nama_konsumen} onChange={e => setErrorForm({ ...errorForm, nama_konsumen: e.target.value })} placeholder="Nama Konsumen" className={`w-full p-3.5 ${cls.input}`} required /><input type="text" value={errorForm.nama_produk} onChange={e => setErrorForm({ ...errorForm, nama_produk: e.target.value })} placeholder="Nama Produk" className={`w-full p-3.5 ${cls.input}`} required /></div></div></div><div className="space-y-4"><div><h4 className={`font-bold mb-4 text-xs uppercase tracking-wider ${cls.textMuted}`}>Analisis Error</h4><div className="space-y-4"><div className="grid grid-cols-2 gap-3"><select value={errorForm.kategori_kesalahan} onChange={e => setErrorForm({ ...errorForm, kategori_kesalahan: e.target.value })} className={`w-full p-3.5 ${cls.input}`}><option value="Kesesuaian/Ketepatan">Kesesuaian</option><option value="Kualitas">Kualitas</option><option value="Desain">Desain</option><option value="Bahan">Bahan</option><option value="Prosedur/Proses">Prosedur</option></select><select value={errorForm.jenis_kesalahan} onChange={e => setErrorForm({ ...errorForm, jenis_kesalahan: e.target.value })} className={`w-full p-3.5 ${cls.input}`}><option value="Machine Error">Mesin</option><option value="Human Error">Human</option><option value="Print Test">Tes Print</option></select></div><div className="grid grid-cols-2 gap-3"><input type="number" value={errorForm.qty_kesalahan} onChange={e => setErrorForm({ ...errorForm, qty_kesalahan: e.target.value })} placeholder="Qty Rusak" className={`w-full p-3.5 ${cls.input}`} required /><input type="text" value={errorForm.pic} onChange={e => setErrorForm({ ...errorForm, pic: e.target.value })} placeholder="PIC" className={`w-full p-3.5 ${cls.input}`} required /></div><div className="grid grid-cols-2 gap-3"><input type="number" value={errorForm.kerugian_bahan} onChange={e => setErrorForm({ ...errorForm, kerugian_bahan: e.target.value })} placeholder="Rugi Bahan" className={`w-full p-3.5 ${cls.input}`} /><input type="number" value={errorForm.kerugian_jasa} onChange={e => setErrorForm({ ...errorForm, kerugian_jasa: e.target.value })} placeholder="Rugi Jasa" className={`w-full p-3.5 ${cls.input}`} /></div></div></div></div><div className="space-y-4 flex flex-col h-full"><div className="flex-grow"><h4 className={`font-bold mb-4 text-xs uppercase tracking-wider ${cls.textMuted}`}>Tindakan</h4><div className="space-y-4"><textarea value={errorForm.deskripsi_kesalahan} onChange={e => setErrorForm({ ...errorForm, deskripsi_kesalahan: e.target.value })} className={`w-full p-3.5 ${cls.input}`} rows="2" placeholder="Deskripsi Masalah"></textarea><textarea value={errorForm.pencegahan_solusi} onChange={e => setErrorForm({ ...errorForm, pencegahan_solusi: e.target.value })} className={`w-full p-3.5 ${cls.input}`} rows="2" placeholder="Solusi & Pencegahan"></textarea></div></div><button type="submit" className={`w-full py-4 rounded-[14px] font-semibold transition-opacity hover:opacity-90 ${cls.roseBg} text-white`}><CheckCircle className="w-5 h-5 mr-2 inline" /> Simpan Error</button></div></form></div>
+           </div>
           )}
 
           {/* TAB: REPORT */}
           {activeTab === 'report' && (
-            <div className={`overflow-hidden animate-in fade-in duration-500 p-6 md:p-8 space-y-8 ${cls.cardBg}`}>
-              <div><div className={`px-2 py-2 mb-4 font-semibold text-lg tracking-tight ${cls.textMain}`}>Laporan Pemakaian Mesin</div><div className={`overflow-hidden border border-black/5 dark:border-white/5 rounded-[20px]`}><table className="w-full text-left text-[15px]"><thead className={`border-b ${cls.tableHead}`}><tr><th className="px-5 py-3">Tgl</th><th className="px-5 py-3">Berlaku Untuk</th><th className="px-5 py-3">Operator</th><th className="px-5 py-3 text-right">Pemakaian</th></tr></thead><tbody className={`divide-y ${cls.tableDiv}`}>{reportClicks.map(item => (<tr key={item.id} className={cls.tableRow}><td className={`px-5 py-3.5 ${cls.textSub}`}>{item.dateStr.split(' ')[0]}</td><td className={`px-5 py-3.5 font-semibold ${cls.textMain}`}>{item.dateFor}</td><td className={`px-5 py-3.5 font-medium ${cls.textSub}`}>{item.operator}</td><td className={`px-5 py-3.5 text-right font-mono font-bold ${cls.indigoText}`}>+{item.dailyClicks}</td></tr>))}</tbody></table></div></div>
-              <div><div className={`px-2 py-2 mb-4 font-semibold text-lg tracking-tight flex justify-between ${cls.textMain}`}><span>Laporan Error</span> <span className={cls.roseText}>Rp {totalRupiahKerugian.toLocaleString()}</span></div><div className={`overflow-hidden border border-black/5 dark:border-white/5 rounded-[20px]`}><table className="w-full text-left text-[15px]"><thead className={`border-b ${cls.tableHead}`}><tr><th className="px-5 py-3">Tanggal</th><th className="px-5 py-3">Konsumen/Produk</th><th className="px-5 py-3">Jenis</th><th className="px-5 py-3 text-right">Rugi (Rp)</th><th className="px-5 py-3">Detail</th></tr></thead><tbody className={`divide-y ${cls.tableDiv}`}>{reportErrors.map(item => (<tr key={item.id} className={cls.tableRow}><td className={`px-5 py-3.5 ${cls.textSub}`}>{formatDateToLocale(item.tgl)}</td><td className="px-5 py-3.5"><div className={`font-semibold ${cls.textMain}`}>{item.nama_konsumen}</div><div className={`text-sm ${cls.textSub}`}>{item.nama_produk}</div></td><td className={`px-5 py-3.5 font-medium ${cls.textMain}`}>{item.jenis_kesalahan}</td><td className={`px-5 py-3.5 text-right font-mono font-bold ${cls.roseText}`}>{Number(item.jumlah_kerugian).toLocaleString('id-ID')}</td><td className="px-5 py-3.5"><button onClick={() => setErrorDetailModal({ isOpen: true, item: item })} className={`p-2 rounded-full ${cls.indigoIcon}`}><Eye className="w-4 h-4" /></button></td></tr>))}</tbody></table></div></div>
-            </div>
+             <div className={`overflow-hidden animate-in fade-in duration-500 p-6 md:p-8 space-y-8 ${cls.cardBg}`}>
+               <div><div className={`px-2 py-2 mb-4 font-semibold text-lg tracking-tight ${cls.textMain}`}>Laporan Pemakaian Mesin</div><div className={`overflow-hidden border border-black/5 dark:border-white/5 rounded-[20px]`}><table className="w-full text-left text-[15px]"><thead className={`border-b ${cls.tableHead}`}><tr><th className="px-5 py-3">Tgl</th><th className="px-5 py-3">Berlaku Untuk</th><th className="px-5 py-3">Operator</th><th className="px-5 py-3 text-right">Pemakaian</th></tr></thead><tbody className={`divide-y ${cls.tableDiv}`}>{reportClicks.map(item => (<tr key={item.id} className={cls.tableRow}><td className={`px-5 py-3.5 ${cls.textSub}`}>{item.dateStr.split(' ')[0]}</td><td className={`px-5 py-3.5 font-semibold ${cls.textMain}`}>{item.dateFor}</td><td className={`px-5 py-3.5 font-medium ${cls.textSub}`}>{item.operator}</td><td className={`px-5 py-3.5 text-right font-mono font-bold ${cls.indigoText}`}>+{item.dailyClicks}</td></tr>))}</tbody></table></div></div>
+               <div><div className={`px-2 py-2 mb-4 font-semibold text-lg tracking-tight flex justify-between ${cls.textMain}`}><span>Laporan Error</span> <span className={cls.roseText}>Rp {totalRupiahKerugian.toLocaleString()}</span></div><div className={`overflow-hidden border border-black/5 dark:border-white/5 rounded-[20px]`}><table className="w-full text-left text-[15px]"><thead className={`border-b ${cls.tableHead}`}><tr><th className="px-5 py-3">Tanggal</th><th className="px-5 py-3">Konsumen/Produk</th><th className="px-5 py-3">Jenis</th><th className="px-5 py-3 text-right">Rugi (Rp)</th><th className="px-5 py-3">Detail</th></tr></thead><tbody className={`divide-y ${cls.tableDiv}`}>{reportErrors.map(item => (<tr key={item.id} className={cls.tableRow}><td className={`px-5 py-3.5 ${cls.textSub}`}>{formatDateToLocale(item.tgl)}</td><td className="px-5 py-3.5"><div className={`font-semibold ${cls.textMain}`}>{item.nama_konsumen}</div><div className={`text-sm ${cls.textSub}`}>{item.nama_produk}</div></td><td className={`px-5 py-3.5 font-medium ${cls.textMain}`}>{item.jenis_kesalahan}</td><td className={`px-5 py-3.5 text-right font-mono font-bold ${cls.roseText}`}>{Number(item.jumlah_kerugian).toLocaleString('id-ID')}</td><td className="px-5 py-3.5"><button onClick={() => setErrorDetailModal({ isOpen: true, item: item })} className={`p-2 rounded-full ${cls.indigoIcon}`}><Eye className="w-4 h-4" /></button></td></tr>))}</tbody></table></div></div>
+             </div>
           )}
 
         </div>
@@ -1001,8 +1005,8 @@ export default function App() {
                     <div key={h.id} className={`flex justify-between items-center p-4 border-b text-[15px] ${cls.tableRow} ${cls.tableDiv}`}>
                       <div className="truncate pr-2"><div className={`font-semibold truncate ${cls.textMain}`}>{h.part_name} <span className={cls.emeraldText}>(+{h.qty})</span></div><div className={`text-sm font-medium ${cls.textSub}`}>{formatDateToLocale(h.tgl_pembelian)}</div></div>
                       <div className="flex space-x-2">
-                        <button onClick={() => confirmEditPurchase(h)} className={`p-2 rounded-full ${cls.indigoIcon}`}><Pencil className="w-4 h-4" /></button>
-                        <button onClick={() => confirmDelete(h, 'purchase')} className={`p-2 rounded-full ${cls.roseIcon}`}><Trash2 className="w-4 h-4" /></button>
+                         <button onClick={() => confirmEditPurchase(h)} className={`p-2 rounded-full ${cls.indigoIcon}`}><Pencil className="w-4 h-4" /></button>
+                         <button onClick={() => confirmDelete(h, 'purchase')} className={`p-2 rounded-full ${cls.roseIcon}`}><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </div>
                   ))}
@@ -1016,8 +1020,8 @@ export default function App() {
                     <div key={h.id} className={`flex justify-between items-center p-4 border-b text-[15px] ${cls.tableRow} ${cls.tableDiv}`}>
                       <div className="truncate pr-2"><div className={`font-semibold truncate ${cls.textMain}`}>{h.part_name}</div><div className={`text-sm font-medium ${cls.textSub}`}>{h.stock} Pcs</div></div>
                       <div className="flex space-x-2">
-                        <button onClick={() => confirmEditInventory(h)} className={`p-2 rounded-full ${cls.indigoIcon}`}><Pencil className="w-4 h-4" /></button>
-                        <button onClick={() => confirmDelete(h, 'inventory')} className={`p-2 rounded-full ${cls.roseIcon}`}><Trash2 className="w-4 h-4" /></button>
+                         <button onClick={() => confirmEditInventory(h)} className={`p-2 rounded-full ${cls.indigoIcon}`}><Pencil className="w-4 h-4" /></button>
+                         <button onClick={() => confirmDelete(h, 'inventory')} className={`p-2 rounded-full ${cls.roseIcon}`}><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </div>
                   ))}
