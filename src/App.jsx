@@ -13,6 +13,29 @@ const supabaseHeaders = {
 
 const ADMIN_PASSWORD = 'admin'; 
 
+// --- DAFTAR PART DARI CSV (DIPERBAIKI TYPO & KAPITALISASI) ---
+const PREDEFINED_PARTS = [
+  "Charging Corona",
+  "Cleaning Blade",
+  "Cleaning Unit",
+  "Developer Black",
+  "Developer Cyan",
+  "Developer Magenta",
+  "Developer Yellow",
+  "Developing Unit",
+  "Drum Unit",
+  "Fuser Belt",
+  "Gear",
+  "Intermediate Transfer Belt (IBT)",
+  "Laser Unit",
+  "Roll Mesin",
+  "Sensor",
+  "Toner Black",
+  "Toner Cyan",
+  "Toner Magenta",
+  "Toner Yellow"
+];
+
 const PART_LIFETIMES = {
   "Toner Cyan": 14000, "Toner Magenta": 14000, "Toner Yellow": 14000, "Toner Black": 14000,
   "Drum Unit Cyan": 40000, "Drum Unit Magenta": 40000, "Drum Unit Yellow": 40000, "Drum Unit Black": 40000,
@@ -52,7 +75,7 @@ export default function App() {
   });
   const [adminPriceInput, setAdminPriceInput] = useState(clickPrice.toString());
 
-  // --- APPLE STYLE SYSTEM (HEX CODES & GLASSMORPHISM) ---
+  // --- APPLE STYLE SYSTEM ---
   const cls = {
     appBg: isDarkMode ? 'bg-[#000000] text-[#F5F5F7]' : 'bg-[#F5F5F7] text-[#1D1D1F]',
     cardBg: isDarkMode ? 'bg-[#1C1C1E]/80 backdrop-blur-2xl border border-[#2C2C2E] shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[24px]' : 'bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px]',
@@ -276,21 +299,16 @@ export default function App() {
 
       const existingPart = inventory.find(p => p.part_name.toLowerCase() === purchaseForm.part_name.toLowerCase());
       if (existingPart) {
+        // Update akumulasi stok gudang (Patch)
         const resInv = await fetch(`${supabaseUrl}/rest/v1/inventory_parts?id=eq.${existingPart.id}`, { method: 'PATCH', headers: { ...supabaseHeaders, 'Prefer': 'return=representation' }, body: JSON.stringify({ stock: existingPart.stock + qtyInt }) });
         if(resInv.ok) { const updatedInv = await resInv.json(); setInventory(inventory.map(item => item.id === existingPart.id ? updatedInv[0] : item)); }
       } else {
+        // Bikin data gudang baru kalau belum pernah ada
         const resInv = await fetch(`${supabaseUrl}/rest/v1/inventory_parts`, { method: 'POST', headers: { ...supabaseHeaders, 'Prefer': 'return=representation' }, body: JSON.stringify({ part_name: purchaseForm.part_name, stock: qtyInt }) });
         if(resInv.ok) { const newInv = await resInv.json(); setInventory([...inventory, newInv[0]]); }
       }
       showToast(`Pembelian ${purchaseForm.part_name} berhasil dicatat & stok bertambah!`);
-      // KUNCI TANGGAL & SUPPLIER SETELAH SUBMIT:
-      setPurchaseForm({ 
-        tgl_pembelian: purchaseForm.tgl_pembelian, 
-        part_name: '', 
-        qty: '', 
-        harga_satuan: '', 
-        supplier: purchaseForm.supplier 
-      });
+      setPurchaseForm({ tgl_pembelian: purchaseForm.tgl_pembelian, part_name: '', qty: '', harga_satuan: '', supplier: purchaseForm.supplier });
     } catch(err) { showToast("Gagal memproses pembelian.", "error"); }
   };
 
@@ -490,6 +508,7 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL EDIT PEMBELIAN (PENGGUNAAN DROPDOWN NAMA BARANG) */}
       {editPurchaseModal.isOpen && (
         <div className={`fixed inset-0 ${cls.modalBg} z-50 flex items-center justify-center p-4`}>
           <div className={`${cls.cardBg} w-full max-w-md p-6 relative`}>
@@ -500,7 +519,13 @@ export default function App() {
             </div>
             <form onSubmit={executeEditPurchase} className="space-y-4 text-sm font-medium">
               <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Tgl Beli</label><input type="date" value={editPurchaseForm.tgl_pembelian} onChange={(e) => setEditPurchaseForm({ ...editPurchaseForm, tgl_pembelian: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
-              <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label><input type="text" value={editPurchaseForm.part_name} onChange={(e) => setEditPurchaseForm({ ...editPurchaseForm, part_name: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
+              <div>
+                <label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label>
+                <select value={editPurchaseForm.part_name} onChange={(e) => setEditPurchaseForm({ ...editPurchaseForm, part_name: e.target.value })} className={`w-full p-3 ${cls.input}`} required>
+                  <option value="">Pilih Barang...</option>
+                  {PREDEFINED_PARTS.map(part => <option key={part} value={part}>{part}</option>)}
+                </select>
+              </div>
               <div className="flex gap-3">
                 <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Qty</label><input type="number" value={editPurchaseForm.qty} onChange={(e) => setEditPurchaseForm({ ...editPurchaseForm, qty: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
                 <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Harga Satuan</label><input type="number" value={editPurchaseForm.harga_satuan} onChange={(e) => setEditPurchaseForm({ ...editPurchaseForm, harga_satuan: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
@@ -512,6 +537,7 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL EDIT STOK GUDANG (PENGGUNAAN DROPDOWN NAMA BARANG) */}
       {editInventoryModal.isOpen && (
         <div className={`fixed inset-0 ${cls.modalBg} z-50 flex items-center justify-center p-4`}>
           <div className={`${cls.cardBg} w-full max-w-sm p-6 relative`}>
@@ -521,7 +547,13 @@ export default function App() {
               <h2 className={`text-xl font-semibold ${cls.textMain}`}>Edit Stok Gudang</h2>
             </div>
             <form onSubmit={executeEditInventory} className="space-y-4 text-sm font-medium">
-              <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label><input type="text" value={editInventoryForm.part_name} onChange={(e) => setEditInventoryForm({ ...editInventoryForm, part_name: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
+              <div>
+                <label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label>
+                <select value={editInventoryForm.part_name} onChange={(e) => setEditInventoryForm({ ...editInventoryForm, part_name: e.target.value })} className={`w-full p-3 ${cls.input}`} required>
+                  <option value="">Pilih Barang...</option>
+                  {PREDEFINED_PARTS.map(part => <option key={part} value={part}>{part}</option>)}
+                </select>
+              </div>
               <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Sisa Stok Terkini</label><input type="number" value={editInventoryForm.stock} onChange={(e) => setEditInventoryForm({ ...editInventoryForm, stock: e.target.value })} className={`w-full p-3 ${cls.input}`} required /></div>
               <button type="submit" className={`w-full mt-4 ${cls.emeraldBg} text-white font-semibold py-3 rounded-full shadow-md`}>Simpan Stok</button>
             </form>
@@ -759,7 +791,6 @@ export default function App() {
           {/* TAB 0: DASHBOARD */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-500">
-              {/* Top Cards Apple Health Style */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className={`p-6 flex flex-col justify-between h-40 ${cls.cardBg}`}>
                    <div className="flex justify-between items-start">
@@ -781,7 +812,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Expense & Net Margin */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className={`p-6 flex flex-col justify-center space-y-5 ${cls.cardBg}`}>
                   <div className="flex items-center justify-between">
@@ -800,9 +830,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* COMPACT CHARTS (50/50 SPLIT) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                {/* Chart Tren */}
                 <div className={`p-4 md:p-5 ${cls.cardBg} flex flex-col`}>
                   <h3 className={`font-semibold text-[15px] tracking-tight mb-4 flex items-center ${cls.textMain}`}>
                     <TrendingUp className={`w-4 h-4 mr-2 ${cls.indigoText}`} /> Tren Harian
@@ -821,7 +849,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Chart Pie Error */}
                 <div className={`p-4 md:p-5 ${cls.cardBg} flex flex-col`}>
                   <h3 className={`font-semibold text-[15px] tracking-tight mb-4 flex items-center ${cls.textMain}`}>
                     <PieChart className={`w-4 h-4 mr-2 ${cls.roseText}`} /> Rasio Error
@@ -852,11 +879,10 @@ export default function App() {
                   )}
                 </div>
               </div>
-
             </div>
           )}
 
-          {/* TAB: INVENTORY */}
+          {/* TAB: INVENTORY (PENGGUNAAN DROPDOWN NAMA BARANG DARI CSV) */}
           {activeTab === 'inventory' && (
             <div className="space-y-6 animate-in fade-in duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -864,8 +890,17 @@ export default function App() {
                 <div className={`col-span-1 p-6 ${cls.cardBg}`}>
                   <h3 className={`font-semibold text-xl mb-6 flex items-center tracking-tight ${cls.textMain}`}><ShoppingCart className={`w-5 h-5 mr-2 ${cls.amberText}`} /> Catat Pembelian</h3>
                   <form onSubmit={handleSavePurchase} className="space-y-4 font-medium">
-                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Tgl Beli</label><input type="date" value={purchaseForm.tgl_pembelian} onChange={e => setPurchaseForm({...purchaseForm, tgl_pembelian: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
-                    <div><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label><input type="text" value={purchaseForm.part_name} onChange={e => setPurchaseForm({...purchaseForm, part_name: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
+                    <div>
+                      <label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Tgl Beli</label>
+                      <input type="date" value={purchaseForm.tgl_pembelian} onChange={e => setPurchaseForm({...purchaseForm, tgl_pembelian: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required />
+                    </div>
+                    <div>
+                      <label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Nama Barang</label>
+                      <select value={purchaseForm.part_name} onChange={e => setPurchaseForm({...purchaseForm, part_name: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required>
+                        <option value="">Pilih Barang...</option>
+                        {PREDEFINED_PARTS.map(part => <option key={part} value={part}>{part}</option>)}
+                      </select>
+                    </div>
                     <div className="flex gap-3">
                       <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Qty</label><input type="number" value={purchaseForm.qty} onChange={e => setPurchaseForm({...purchaseForm, qty: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
                       <div className="flex-1"><label className={`block text-xs mb-1.5 ml-1 ${cls.textSub}`}>Harga/Pcs</label><input type="number" value={purchaseForm.harga_satuan} onChange={e => setPurchaseForm({...purchaseForm, harga_satuan: e.target.value})} className={`w-full p-3.5 ${cls.input}`} required /></div>
@@ -878,7 +913,7 @@ export default function App() {
                 <div className="col-span-1 lg:col-span-2 space-y-6">
                   <div className={`overflow-hidden ${cls.cardBg}`}>
                     <div className={`p-5 border-b flex justify-between items-center ${cls.tableDiv}`}>
-                      <h3 className={`font-semibold text-lg flex items-center tracking-tight ${cls.textMain}`}><Package className={`w-5 h-5 mr-2 ${cls.emeraldText}`} /> Stok Gudang</h3>
+                      <h3 className={`font-semibold text-lg flex items-center tracking-tight ${cls.textMain}`}><Package className={`w-5 h-5 mr-2 ${cls.emeraldText}`} /> Stok Gudang (Akumulasi)</h3>
                     </div>
                     <div className="overflow-y-auto max-h-[300px]">
                       <table className="w-full text-left text-[15px] whitespace-nowrap">
@@ -905,7 +940,7 @@ export default function App() {
                   
                   <div className={`overflow-hidden ${cls.cardBg}`}>
                     <div className={`p-5 border-b flex justify-between items-center ${cls.tableDiv}`}>
-                      <h3 className={`font-semibold text-lg tracking-tight flex items-center ${cls.textMain}`}>Histori Pembelian</h3>
+                      <h3 className={`font-semibold text-lg tracking-tight flex items-center ${cls.textMain}`}>Histori Pembelian (Log Harian)</h3>
                       <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${cls.amberIcon}`}>Rp {totalExpensePart.toLocaleString('id-ID')}</div>
                     </div>
                     <div className="overflow-x-auto max-h-[250px]">
