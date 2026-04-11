@@ -950,7 +950,10 @@ export default function App() {
                           {reportPurchases.map((item, idx) => (
                             <tr key={idx} className={cls.tableRow}>
                               <td className={`px-5 py-3.5 font-medium ${cls.textSub}`}>{formatDateToLocale(item.tgl_pembelian)}</td>
-                              <td className={`px-5 py-3.5 font-semibold ${cls.textMain}`}>{item.part_name}</td>
+                              <td className={`px-5 py-3.5`}>
+                                <div className={`font-semibold ${cls.textMain}`}>{item.part_name}</div>
+                                {item.supplier && <div className={`text-[11px] font-medium ${cls.textSub} mt-0.5`}>{item.supplier}</div>}
+                              </td>
                               <td className={`px-5 py-3.5 text-center font-semibold ${cls.emeraldText}`}>+{item.qty}</td>
                               <td className={`px-5 py-3.5 text-right font-mono font-bold ${cls.amberText}`}>{Number(item.total_harga).toLocaleString('id-ID')}</td>
                             </tr>
@@ -1038,7 +1041,10 @@ export default function App() {
                 <div className={`overflow-y-auto h-[350px] bg-transparent`}>
                   {purchases.map(h => (
                     <div key={h.id} className={`flex justify-between items-center p-4 border-b text-[15px] ${cls.tableRow} ${cls.tableDiv}`}>
-                      <div className="truncate pr-2"><div className={`font-semibold truncate ${cls.textMain}`}>{h.part_name} <span className={cls.emeraldText}>(+{h.qty})</span></div><div className={`text-sm font-medium ${cls.textSub}`}>{formatDateToLocale(h.tgl_pembelian)}</div></div>
+                      <div className="truncate pr-2">
+                        <div className={`font-semibold truncate ${cls.textMain}`}>{h.part_name} <span className={cls.emeraldText}>(+{h.qty})</span></div>
+                        <div className={`text-sm font-medium ${cls.textSub}`}>{formatDateToLocale(h.tgl_pembelian)}{h.supplier ? ` • ${h.supplier}` : ''}</div>
+                      </div>
                       <div className="flex space-x-2">
                          <button onClick={() => confirmEditPurchase(h)} className={`p-2 rounded-full ${cls.indigoIcon}`}><Pencil className="w-4 h-4" /></button>
                          <button onClick={() => confirmDelete(h, 'purchase')} className={`p-2 rounded-full ${cls.roseIcon}`}><Trash2 className="w-4 h-4" /></button>
